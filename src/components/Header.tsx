@@ -2,9 +2,16 @@
 
 import { Menu, Bell, User, Search } from "lucide-react";
 import { useState } from "react";
-
+import { useAuth } from "@/context/AuthContext";
 export default function Header({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const { user } = useAuth();
+
+
+  const iniciais = user?.pessoa?.nome?.trim()
+    .split(" ")
+    .map(n => n[0])
+    .join("");
 
   return (
     <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-20">
@@ -57,11 +64,11 @@ export default function Header({ open, setOpen }: { open: boolean; setOpen: (v: 
           {/* User Profile */}
           <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-[#0B1F3A]">Nayane Pimentel</p>
-              <p className="text-xs text-gray-500">Administradora</p>
+              <p className="text-sm font-medium text-[#0B1F3A]">{user?.pessoa?.nome}</p>
+              <p className="text-xs text-gray-500">{user?.role == 'ADMIN' ? "Administrador" : "Usuário do Sistema"}</p>
             </div>
             <div className="w-9 h-9 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-full flex items-center justify-center text-white font-semibold">
-              NP
+              {iniciais}
             </div>
           </div>
         </div>

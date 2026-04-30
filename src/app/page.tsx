@@ -1,5 +1,230 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default function Home() {
-  redirect("/login");
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Calendar, Sparkles, Star, Clock, Shield, Heart, ArrowRight, CheckCircle } from "lucide-react";
+
+export default function HomePage() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const servicos = [
+    { nome: "Limpeza de Pele", descricao: "Remoção de impurezas e renovação celular", duracao: "60min", preco: "R$ 150" },
+    { nome: "Botox", descricao: "Suavização de linhas de expressão", duracao: "30min", preco: "R$ 450" },
+    { nome: "Preenchimento Facial", descricao: "Restauração de volume facial", duracao: "45min", preco: "R$ 800" },
+    { nome: "Drenagem Linfática", descricao: "Redução de inchaço e retenção", duracao: "50min", preco: "R$ 120" },
+    { nome: "Harmonização Facial", descricao: "Equilíbrio dos traços faciais", duracao: "90min", preco: "R$ 1.200" },
+    { nome: "Peeling Químico", descricao: "Renovação da pele profunda", duracao: "40min", preco: "R$ 250" },
+  ];
+
+  const diferenciais = [
+    { icone: Star, titulo: "Produtos Premium", descricao: "Utilizamos apenas produtos de alta qualidade e aprovados pela ANVISA" },
+    { icone: Shield, titulo: "Profissionais Certificados", descricao: "Equipe especializada e constantemente atualizada" },
+    { icone: Heart, titulo: "Atendimento Humanizado", descricao: "Cuidamos de você com carinho e respeito" },
+    { icone: Clock, titulo: "Flexibilidade de Horários", descricao: "Atendemos em horários convenientes para você" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-transparent"}`}>
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] p-2 rounded-xl">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-[#0B1F3A]">Nayane Pimentel</h1>
+                <p className="text-xs text-gray-500">Estética Avançada</p>
+              </div>
+            </div>
+            
+            <nav className="hidden md:flex gap-8">
+              <a href="#home" className="text-gray-700 hover:text-[#0B1F3A] transition">Início</a>
+              <a href="#servicos" className="text-gray-700 hover:text-[#0B1F3A] transition">Serviços</a>
+              <a href="#sobre" className="text-gray-700 hover:text-[#0B1F3A] transition">Sobre</a>
+              <a href="#contato" className="text-gray-700 hover:text-[#0B1F3A] transition">Contato</a>
+            </nav>
+            
+            <div className="flex gap-3">
+              <Link href="/agendamento" className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white px-5 py-2 rounded-lg font-semibold hover:shadow-lg transition">
+                Agendar Horário
+              </Link>
+              <Link href="/login" className="border border-[#0B1F3A] text-[#0B1F3A] px-5 py-2 rounded-lg font-semibold hover:bg-[#0B1F3A] hover:text-white transition">
+                Área Admin
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section id="home" className="relative min-h-screen flex items-center pt-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3A]/5 to-transparent" />
+        <div className="container mx-auto px-6 py-20">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-[#0B1F3A]/10 px-4 py-2 rounded-full mb-6">
+                <Sparkles className="w-4 h-4 text-[#0B1F3A]" />
+                <span className="text-sm font-medium text-[#0B1F3A]">Excelência em Estética</span>
+              </div>
+              <h1 className="text-5xl md:text-6xl font-bold text-[#0B1F3A] mb-6">
+                Sua beleza,
+                <span className="block text-[#1C4468]">nossa prioridade</span>
+              </h1>
+              <p className="text-gray-600 text-lg mb-8">
+                Tratamentos exclusivos com tecnologia de ponta e profissionais especializados para realçar sua beleza natural.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/agendamento" className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition-all flex items-center gap-2">
+                  Agendar Agora <ArrowRight className="w-5 h-5" />
+                </Link>
+                <a href="#servicos" className="border-2 border-[#0B1F3A] text-[#0B1F3A] px-8 py-3 rounded-xl font-semibold hover:bg-[#0B1F3A] hover:text-white transition-all">
+                  Ver Serviços
+                </a>
+              </div>
+              <div className="flex gap-8 mt-8 pt-8 border-t border-gray-100">
+                <div>
+                  <p className="text-2xl font-bold text-[#0B1F3A]">500+</p>
+                  <p className="text-sm text-gray-500">Clientes Satisfeitos</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-[#0B1F3A]">10+</p>
+                  <p className="text-sm text-gray-500">Anos de Experiência</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-[#0B1F3A]">20+</p>
+                  <p className="text-sm text-gray-500">Tratamentos Especializados</p>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] rounded-2xl blur-3xl opacity-20" />
+              <img 
+                src="/hero-image.jpg" 
+                alt="Estética Avançada"
+                className="relative rounded-2xl shadow-2xl w-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600";
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Serviços */}
+      <section id="servicos" className="py-20 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-[#1C4468] font-semibold text-sm uppercase tracking-wide">Nossos Serviços</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0B1F3A] mt-2 mb-4">
+              Tratamentos Exclusivos
+            </h2>
+            <p className="text-gray-600">
+              Oferecemos os mais avançados tratamentos estéticos com resultados comprovados
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {servicos.map((servico, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="p-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-xl flex items-center justify-center mb-4">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0B1F3A] mb-2">{servico.nome}</h3>
+                  <p className="text-gray-500 text-sm mb-4">{servico.descricao}</p>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-gray-400">Duração</p>
+                      <p className="text-sm font-semibold">{servico.duracao}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400">A partir de</p>
+                      <p className="text-xl font-bold text-[#1C4468]">{servico.preco}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Diferenciais */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <span className="text-[#1C4468] font-semibold text-sm uppercase tracking-wide">Por que nos escolher</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0B1F3A] mt-2 mb-6">
+                Diferenciais que fazem a diferença
+              </h2>
+              <div className="space-y-6">
+                {diferenciais.map((dif, index) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="w-12 h-12 bg-[#0B1F3A]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <dif.icone className="w-6 h-6 text-[#0B1F3A]" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 mb-1">{dif.titulo}</h3>
+                      <p className="text-gray-500 text-sm">{dif.descricao}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative">
+              <div className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] rounded-2xl p-8 text-white">
+                <h3 className="text-2xl font-bold mb-4">Agende sua avaliação</h3>
+                <p className="mb-6 opacity-90">
+                  Primeira consulta gratuita para avaliação e planejamento do seu tratamento personalizado.
+                </p>
+                <Link href="/agendamento" className="inline-flex items-center gap-2 bg-white text-[#0B1F3A] px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition">
+                  Agendar Agora <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="contato" className="bg-[#0B1F3A] text-white py-12">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-6 h-6" />
+                <h3 className="text-xl font-bold">Nayane Pimentel</h3>
+              </div>
+              <p className="text-white/70">Estética Avançada</p>
+              <p className="text-white/70 text-sm mt-2">Coren/PE 488.389</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Contato</h4>
+              <p className="text-white/70">📞 (81) 99999-9999</p>
+              <p className="text-white/70">✉️ contato@nayanepimentel.com</p>
+              <p className="text-white/70">📍 Recife - PE</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Horário de Funcionamento</h4>
+              <p className="text-white/70">Segunda a Sexta: 8h às 19h</p>
+              <p className="text-white/70">Sábado: 8h às 14h</p>
+            </div>
+          </div>
+          <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
+            © 2024 Nayane Pimentel - Estética Avançada. Todos os direitos reservados.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
 }

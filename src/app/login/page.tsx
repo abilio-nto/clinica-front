@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { api } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import { useAuth } from "@/context/AuthContext";
 type LoginData = {
   username: string;
   password: string;
@@ -15,12 +15,13 @@ export default function Login() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  const { user } = useAuth();
+  const { login } = useAuth();
   async function onSubmit(data: LoginData) {
     setIsLoading(true);
     try {
       const response = await api.post("/auth/login", data);
-      localStorage.setItem("token", response.data.token);
-      router.push("/dashboard");
+      login(response.data.token);
     } catch {
       alert("Login inválido");
     } finally {
@@ -73,7 +74,7 @@ export default function Login() {
               <input
                 {...register("username")}
                 placeholder="Usuário"
-                className="w-full bg-white border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B1F3A] focus:border-transparent transition-all pl-10"
+                className="w-full bg-white border text-[#0B1F3A] border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B1F3A] focus:border-transparent transition-all pl-10"
               />
               <span className="absolute left-3 top-3.5 text-gray-400">👤</span>
             </div>
@@ -83,7 +84,7 @@ export default function Login() {
                 {...register("password")}
                 type="password"
                 placeholder="Senha"
-                className="w-full bg-white border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B1F3A] focus:border-transparent transition-all pl-10"
+                className="w-full bg-white border text-[#0B1F3A] border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B1F3A] focus:border-transparent transition-all pl-10"
               />
               <span className="absolute left-3 top-3.5 text-gray-400">🔒</span>
             </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, Users, DollarSign, TrendingUp, Clock, Star } from "lucide-react";
-
+import { useAuth } from "@/context/AuthContext";
 export default function Dashboard() {
   const stats = [
     { 
@@ -40,6 +40,9 @@ export default function Dashboard() {
     { time: "14:00", client: "Carla Oliveira", procedure: "Preenchimento", status: "agendado" },
     { time: "16:00", client: "Juliana Costa", procedure: "Drenagem", status: "confirmado" },
   ];
+
+    const { user } = useAuth();
+     console.log(user)
 
   return (
     <div className="space-y-6">
