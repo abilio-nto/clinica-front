@@ -22,7 +22,7 @@ export default function AgendaPage() {
 
   async function fetchAgendas() {
     try {
-      const response = await api.get("/agendas");
+      const response = await api.get("/agendas/ListAll");
       setAgendas(response.data);
     } catch (error) {
       console.error("Erro ao carregar agendas:", error);

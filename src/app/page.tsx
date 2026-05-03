@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+
 import { Calendar, Sparkles, Star, Clock, Shield, Heart, ArrowRight, CheckCircle } from "lucide-react";
 
 export default function HomePage() {
@@ -32,31 +33,58 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-transparent"}`}>
-        <div className="container mx-auto px-6 py-4">
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+          ? "bg-[#0B1F3A] shadow-lg"
+          : "bg-gradient-to-r from-[#0B1F3A]/95 to-[#1C4468]/95 backdrop-blur-sm"
+        }`}>
+        <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
+            {/* Logo e Nome - Lado Esquerdo */}
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] p-2 rounded-xl">
-                <Sparkles className="w-6 h-6 text-white" />
+              {/* Container da Imagem com fundo branco/sutil */}
+              <div className="">
+                <img
+                  src="/topoSite3.png"
+                  alt="Nayane Pimentel - Estética Avançada"
+                  className="h-15 w-40 rounded-lg"
+                
+                />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-[#0B1F3A]">Nayane Pimentel</h1>
-                <p className="text-xs text-gray-500">Estética Avançada</p>
-              </div>
+              {/* <div className="hidden sm:block">
+                <h1 className="text-xl font-bold text-white">Nayane Pimentel</h1>
+                <p className="text-xs text-white/70">Estética Avançada</p>
+              </div> */}
             </div>
-            
+
+            {/* Navegação Desktop - Centralizada */}
             <nav className="hidden md:flex gap-8">
-              <a href="#home" className="text-gray-700 hover:text-[#0B1F3A] transition">Início</a>
-              <a href="#servicos" className="text-gray-700 hover:text-[#0B1F3A] transition">Serviços</a>
-              <a href="#sobre" className="text-gray-700 hover:text-[#0B1F3A] transition">Sobre</a>
-              <a href="#contato" className="text-gray-700 hover:text-[#0B1F3A] transition">Contato</a>
+              {['Início', 'Serviços', 'Sobre', 'Contato'].map((item, index) => {
+                const href = `#${item.toLowerCase() === 'início' ? 'home' : item.toLowerCase()}`;
+                return (
+                  <a
+                    key={index}
+                    href={href}
+                    className="text-white/80 hover:text-white transition-colors duration-200 font-medium relative group"
+                  >
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full" />
+                  </a>
+                );
+              })}
             </nav>
-            
+
+            {/* Botões - Lado Direito */}
             <div className="flex gap-3">
-              <Link href="/agendamento" className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white px-5 py-2 rounded-lg font-semibold hover:shadow-lg transition">
+              <Link
+                href="/agendamento"
+                className="bg-white text-[#0B1F3A] px-5 py-2 rounded-lg font-semibold hover:bg-white/90 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
                 Agendar Horário
               </Link>
-              <Link href="/login" className="border border-[#0B1F3A] text-[#0B1F3A] px-5 py-2 rounded-lg font-semibold hover:bg-[#0B1F3A] hover:text-white transition">
+              <Link
+                href="/login"
+                className="border-2 border-white/80 text-white px-5 py-2 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300"
+              >
                 Área Admin
               </Link>
             </div>
@@ -106,8 +134,8 @@ export default function HomePage() {
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] rounded-2xl blur-3xl opacity-20" />
-              <img 
-                src="/hero-image.jpg" 
+              <img
+                src="/esteticaSite.png"
                 alt="Estética Avançada"
                 className="relative rounded-2xl shadow-2xl w-full object-cover"
                 onError={(e) => {
@@ -131,7 +159,7 @@ export default function HomePage() {
               Oferecemos os mais avançados tratamentos estéticos com resultados comprovados
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicos.map((servico, index) => (
               <div key={index} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
