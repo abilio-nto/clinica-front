@@ -85,7 +85,7 @@ export default function HomePage() {
                 href="/login"
                 className="border-2 border-white/80 text-white px-5 py-2 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300"
               >
-                Área Admin
+                Login
               </Link>
             </div>
           </div>

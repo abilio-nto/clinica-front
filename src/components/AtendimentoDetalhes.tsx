@@ -33,6 +33,7 @@ export function AtendimentoDetalhes({ isOpen, onClose, atendimento, onStatusChan
   const handleIniciarAtendimento = async () => {
     setIsLoading(true);
     try {
+      console.log(`/atendimento/iniciar-atendimento/${atendimento.id}`)
       await api.put(`/atendimento/iniciar-atendimento/${atendimento.id}`);
       onStatusChange();
       onClose();
