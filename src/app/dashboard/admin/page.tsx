@@ -10,25 +10,25 @@ import { api } from "@/services/api";
 
 interface DashboardStats {
   totalClientes: number;
-  totalAgendamentosHoje: number;
+  agendamentosDia: number;
   totalAgendamentosSemana: number;
   faturamentoMes: number;
   faturamentoDia: number;
-  taxaOcupacao: number;
-  profissionaisAtivos: number;
-  recepcionistas: number;
+  ocupacao: number;
+  qtdProofissionais: number;
+  qtdRecepcionistas: number;
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalClientes: 0,
-    totalAgendamentosHoje: 0,
+    agendamentosDia: 0,
     totalAgendamentosSemana: 0,
     faturamentoMes: 0,
     faturamentoDia: 0,
-    taxaOcupacao: 0,
-    profissionaisAtivos: 0,
-    recepcionistas: 0,
+    ocupacao: 0,
+    qtdProofissionais: 0,
+    qtdRecepcionistas: 0,
   });
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,9 +39,10 @@ export default function AdminDashboard() {
 
   async function fetchAdminStats() {
     try {
-      const response = await api.get("/admin/dashboard/stats");
+      const response = await api.get("/dashboard/stats");
       setStats(response.data);
-      setRecentActivities(response.data.recentActivities);
+      console.log(response)
+      setRecentActivities([]);
     } catch (error) {
       console.error("Erro ao carregar estatísticas:", error);
     } finally {
@@ -51,14 +52,14 @@ export default function AdminDashboard() {
 
   const mainStats = [
     { title: "Clientes Totais", value: stats.totalClientes, icon: Users, color: "from-blue-500 to-blue-600" },
-    { title: "Agendamentos Hoje", value: stats.totalAgendamentosHoje, icon: Calendar, color: "from-emerald-500 to-emerald-600" },
-    { title: "Faturamento Mês", value: `R$ ${stats.faturamentoMes.toLocaleString()}`, icon: DollarSign, color: "from-purple-500 to-purple-600" },
-    { title: "Taxa Ocupação", value: `${stats.taxaOcupacao}%`, icon: TrendingUp, color: "from-amber-500 to-amber-600" },
+    { title: "Agendamentos Hoje", value: stats.agendamentosDia, icon: Calendar, color: "from-emerald-500 to-emerald-600" },
+    { title: "Faturamento Mês", value: `R$ ${stats.faturamentoMes}`, icon: DollarSign, color: "from-purple-500 to-purple-600" },
+    { title: "Taxa Ocupação", value: `${stats.ocupacao}%`, icon: TrendingUp, color: "from-amber-500 to-amber-600" },
   ];
 
   const teamStats = [
-    { title: "Profissionais", value: stats.profissionaisAtivos, icon: Shield, color: "from-indigo-500 to-indigo-600" },
-    { title: "Recepcionistas", value: stats.recepcionistas, icon: Building2, color: "from-cyan-500 to-cyan-600" },
+    { title: "Profissionais", value: stats.qtdProofissionais, icon: Shield, color: "from-indigo-500 to-indigo-600" },
+    { title: "Recepcionistas", value: stats.qtdRecepcionistas, icon: Building2, color: "from-cyan-500 to-cyan-600" },
   ];
 
   return (
