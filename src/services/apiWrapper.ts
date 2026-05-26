@@ -221,3 +221,26 @@ export const toggleUsuarioAtivo = async (id: number) => {
   const res = await api.patch(`/usuarios/${id}/toggle-ativo`);
   return res.data;
 };
+
+// ─── AGENDA SLOTS ─────────────────────────────────────────────
+export const agendarSlotAgenda = async (
+  itAgendaId: number,
+  clienteId: number,
+  procedimentoId: number
+) => {
+  if (USE_MOCK) {
+    await mockDelay(700);
+    return { success: true };
+  }
+  const res = await api.post("/agendas/agendar-slot", { itAgendaId, clienteId, procedimentoId });
+  return res.data;
+};
+
+export const cancelarSlotAgenda = async (itAgendaId: number) => {
+  if (USE_MOCK) {
+    await mockDelay(500);
+    return { success: true };
+  }
+  const res = await api.put(`/agendas/cancelar-slot/${itAgendaId}`);
+  return res.data;
+};

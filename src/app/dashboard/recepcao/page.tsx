@@ -4,11 +4,12 @@ import { useState, useEffect, useMemo } from "react";
 import {
   Calendar, Clock, User, Phone, Mail, CheckCircle,
   XCircle, AlertCircle, Eye, Plus, Search, Play,
-  X, ChevronRight, ChevronLeft, Activity, Loader2
+  X, ChevronRight, ChevronLeft, Loader2, UserPlus
 } from "lucide-react";
 import {
   fetchAgendamentosHoje, fetchClientes, fetchProcedimentos,
-  fetchProfissionais, iniciarAtendimento, finalizarAtendimento, cancelarAgendamento
+  fetchProfissionais, iniciarAtendimento, finalizarAtendimento,
+  cancelarAgendamento, agendarSlotAgenda,
 } from "@/services/apiWrapper";
 
 interface Agendamento {
@@ -72,18 +73,19 @@ export default function RecepcaoDashboard() {
   const [actionLoading, setActionLoading] = useState(false);
   const [observacoes, setObservacoes] = useState("");
 
-  // Modal novo agendamento
+  // Modal cancelar
+  const [showCancelar, setShowCancelar] = useState(false);
+  const [motivoCancelamento, setMotivoCancelamento] = useState("");
+
+  // Modal novo agendamento (também usado para agendar slot disponível)
   const [showNovo, setShowNovo] = useState(false);
   const [step, setStep] = useState(1);
+  const [slotHorario, setSlotHorario] = useState<Agendamento | null>(null);
   const [selCliente, setSelCliente] = useState<Cliente | null>(null);
   const [selProcedimento, setSelProcedimento] = useState<Procedimento | null>(null);
   const [selProfissional, setSelProfissional] = useState<Profissional | null>(null);
   const [busca, setBusca] = useState("");
   const [savingNovo, setSavingNovo] = useState(false);
-
-  // Modal cancelar
-  const [showCancelar, setShowCancelar] = useState(false);
-  const [motivoCancelamento, setMotivoCancelamento] = useState("");
 
   useEffect(() => { load(); }, []);
 
@@ -106,15 +108,16 @@ export default function RecepcaoDashboard() {
     setTimeout(() => setToast(null), 3500);
   }
 
+  // All slots (DISPONIVEL always shown; others filtered by search)
   const filtrados = useMemo(() =>
     agendamentos.filter(a =>
-      a.status !== "DISPONIVEL" &&
-      (searchTerm === "" ||
-        a.nomeCliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.procedimento?.toLowerCase().includes(searchTerm.toLowerCase()))
+      a.status === "DISPONIVEL" ||
+      searchTerm === "" ||
+      a.nomeCliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.procedimento?.toLowerCase().includes(searchTerm.toLowerCase())
     ), [agendamentos, searchTerm]);
 
-  const disponiveis = agendamentos.filter(a => a.status === "DISPONIVEL");
+  const disponiveis = agendamentos.filter(a => a.status === "DISPONIVEL").length;
   const concluidos = agendamentos.filter(a => a.status === "FINALIZADO").length;
   const emAndamento = agendamentos.filter(a => a.status === "EM_ANDAMENTO").length;
   const agendados = agendamentos.filter(a => a.status === "AGENDADO").length;
@@ -159,28 +162,63 @@ export default function RecepcaoDashboard() {
     try {
       await cancelarAgendamento(selectedAgt.id, motivoCancelamento);
       setAgendamentos(prev => prev.map(a =>
-        a.id === selectedAgt.id ? { ...a, status: "CANCELADO" } : a
+        a.id === selectedAgt.id
+          ? { ...a, status: "DISPONIVEL", nomeCliente: null, procedimento: null, nomeProfissional: null, valorProcedimento: 0 }
+          : a
       ));
       setShowCancelar(false);
       setShowDetalhes(false);
-      showToast("Agendamento cancelado", "ok");
+      showToast("Agendamento cancelado. Vaga liberada.", "ok");
     } catch { showToast("Erro ao cancelar", "err"); }
     finally { setActionLoading(false); }
   }
 
+  function openNovoFromSlot(slot: Agendamento) {
+    setSlotHorario(slot);
+    setStep(1);
+    setSelCliente(null);
+    setSelProcedimento(null);
+    setSelProfissional(null);
+    setBusca("");
+    setShowNovo(true);
+  }
+
   function resetNovo() {
-    setStep(1); setSelCliente(null); setSelProcedimento(null);
-    setSelProfissional(null); setBusca(""); setShowNovo(false);
+    setStep(1);
+    setSelCliente(null);
+    setSelProcedimento(null);
+    setSelProfissional(null);
+    setBusca("");
+    setSlotHorario(null);
+    setShowNovo(false);
   }
 
   async function handleSalvarNovo() {
     if (!selCliente || !selProcedimento || !selProfissional) return;
     setSavingNovo(true);
-    await new Promise(r => setTimeout(r, 800));
-    setSavingNovo(false);
-    resetNovo();
-    showToast("Agendamento criado com sucesso!", "ok");
-    load();
+    try {
+      if (slotHorario) {
+        await agendarSlotAgenda(slotHorario.id, selCliente.id, selProcedimento.id);
+        setAgendamentos(prev => prev.map(a =>
+          a.id === slotHorario.id ? {
+            ...a,
+            status: "AGENDADO",
+            nomeCliente: selCliente.nome,
+            procedimento: selProcedimento.nome,
+            nomeProfissional: selProfissional.nome,
+            valorProcedimento: selProcedimento.valor,
+            telefoneCliente: selCliente.telefone,
+            emailCliente: selCliente.email,
+          } : a
+        ));
+      } else {
+        await new Promise(r => setTimeout(r, 800));
+        load();
+      }
+      resetNovo();
+      showToast("Agendamento criado com sucesso!", "ok");
+    } catch { showToast("Erro ao criar agendamento", "err"); }
+    finally { setSavingNovo(false); }
   }
 
   const clientesFiltrados = clientes.filter(c =>
@@ -223,7 +261,7 @@ export default function RecepcaoDashboard() {
           </div>
         </div>
         <button
-          onClick={() => setShowNovo(true)}
+          onClick={() => { setSlotHorario(null); setShowNovo(true); }}
           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" /> Novo Agendamento
@@ -236,7 +274,7 @@ export default function RecepcaoDashboard() {
           { label: "Agendados", value: agendados, color: "bg-blue-50 text-blue-700 border-blue-200" },
           { label: "Em andamento", value: emAndamento, color: "bg-amber-50 text-amber-700 border-amber-200" },
           { label: "Concluídos", value: concluidos, color: "bg-green-50 text-green-700 border-green-200" },
-          { label: "Disponíveis", value: disponiveis.length, color: "bg-gray-50 text-gray-600 border-gray-200" },
+          { label: "Disponíveis", value: disponiveis, color: "bg-gray-50 text-gray-600 border-gray-200" },
         ].map((k, i) => (
           <div key={i} className={`rounded-xl border p-4 text-center ${k.color}`}>
             <p className="text-2xl font-bold">{k.value}</p>
@@ -258,8 +296,15 @@ export default function RecepcaoDashboard() {
 
       {/* Tabela de agendamentos */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-gray-100">
-          <h2 className="font-bold text-[#0B1F3A]">Agenda de Hoje — {filtrados.length} atendimentos</h2>
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="font-bold text-[#0B1F3A]">
+            Agenda de Hoje — {filtrados.filter(a => a.status !== "DISPONIVEL").length} atendimentos
+          </h2>
+          {disponiveis > 0 && (
+            <span className="text-xs text-green-600 font-medium bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+              {disponiveis} vaga{disponiveis !== 1 ? "s" : ""} livre{disponiveis !== 1 ? "s" : ""}
+            </span>
+          )}
         </div>
         <div className="divide-y divide-gray-50">
           {filtrados.length === 0 ? (
@@ -269,32 +314,79 @@ export default function RecepcaoDashboard() {
             </div>
           ) : filtrados.map(a => {
             const cfg = STATUS_CFG[a.status] || STATUS_CFG["DISPONIVEL"];
+            const isDisponivel = a.status === "DISPONIVEL";
+
             return (
-              <div key={a.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition group">
+              <div
+                key={a.id}
+                className={`flex items-center gap-4 px-5 py-3.5 transition group ${isDisponivel ? "bg-green-50/40 hover:bg-green-50" : "hover:bg-gray-50"}`}
+              >
                 {/* Hora */}
                 <div className="w-14 shrink-0">
-                  <span className="text-sm font-bold text-[#1C4468]">{a.hrAgendamento}</span>
+                  <span className={`text-sm font-bold ${isDisponivel ? "text-green-600" : "text-[#1C4468]"}`}>
+                    {a.hrAgendamento}
+                  </span>
                 </div>
-                {/* Info cliente */}
+
+                {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-800 truncate">{a.nomeCliente || "—"}</p>
-                  <p className="text-xs text-gray-400 truncate">{a.procedimento || "Sem procedimento"} • {a.nomeProfissional || "—"}</p>
+                  {isDisponivel ? (
+                    <p className="text-sm text-gray-400 italic">Horário disponível</p>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-gray-800 truncate">{a.nomeCliente || "—"}</p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {a.procedimento || "Sem procedimento"} • {a.nomeProfissional || "—"}
+                      </p>
+                    </>
+                  )}
                 </div>
-                {/* Status */}
+
+                {/* Status badge */}
                 <span className={`hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color}`}>
                   {cfg.label}
                 </span>
+
                 {/* Valor */}
-                <span className="hidden md:block text-sm font-semibold text-gray-700 w-20 text-right">
-                  {a.valorProcedimento > 0 ? fmt(a.valorProcedimento) : "—"}
-                </span>
+                {!isDisponivel && (
+                  <span className="hidden md:block text-sm font-semibold text-gray-700 w-20 text-right shrink-0">
+                    {a.valorProcedimento > 0 ? fmt(a.valorProcedimento) : "—"}
+                  </span>
+                )}
+
                 {/* Ações */}
-                <button
-                  onClick={() => openDetalhes(a)}
-                  className="p-2 rounded-lg hover:bg-[#0B1F3A]/5 transition opacity-0 group-hover:opacity-100 shrink-0"
-                >
-                  <Eye className="w-4 h-4 text-[#0B1F3A]" />
-                </button>
+                {isDisponivel ? (
+                  <button
+                    onClick={() => openNovoFromSlot(a)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-semibold transition shrink-0"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Agendar</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1 shrink-0">
+                    {a.status === "AGENDADO" && (
+                      <button
+                        onClick={() => {
+                          setSelectedAgt(a);
+                          setMotivoCancelamento("");
+                          setShowCancelar(true);
+                        }}
+                        className="p-2 rounded-lg hover:bg-red-50 transition opacity-0 group-hover:opacity-100"
+                        title="Cancelar agendamento"
+                      >
+                        <XCircle className="w-4 h-4 text-red-400" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => openDetalhes(a)}
+                      className="p-2 rounded-lg hover:bg-[#0B1F3A]/5 transition opacity-0 group-hover:opacity-100"
+                      title="Ver detalhes"
+                    >
+                      <Eye className="w-4 h-4 text-[#0B1F3A]" />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -312,14 +404,12 @@ export default function RecepcaoDashboard() {
               </button>
             </div>
             <div className="p-6 space-y-4">
-              {/* Status */}
               <div className="flex items-center justify-between">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_CFG[selectedAgt.status]?.bg} ${STATUS_CFG[selectedAgt.status]?.color}`}>
                   {STATUS_CFG[selectedAgt.status]?.label}
                 </span>
                 <span className="text-xs text-gray-400">#{selectedAgt.id}</span>
               </div>
-              {/* Horário */}
               <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
                 <Clock className="w-4 h-4 text-[#0B1F3A]" />
                 <div>
@@ -327,7 +417,6 @@ export default function RecepcaoDashboard() {
                   <p className="font-semibold text-[#0B1F3A] text-sm">{selectedAgt.hrAgendamento}</p>
                 </div>
               </div>
-              {/* Cliente */}
               <div className="bg-gray-50 p-3 rounded-xl space-y-1.5">
                 <div className="flex items-center gap-2 mb-1">
                   <User className="w-4 h-4 text-[#0B1F3A]" />
@@ -341,7 +430,6 @@ export default function RecepcaoDashboard() {
                   <p className="text-xs text-gray-500 flex items-center gap-1"><Mail className="w-3 h-3" />{selectedAgt.emailCliente}</p>
                 )}
               </div>
-              {/* Procedimento */}
               <div className="bg-gray-50 p-3 rounded-xl">
                 <p className="text-xs font-semibold text-gray-600 mb-1">Procedimento</p>
                 <p className="text-sm font-medium text-gray-800">{selectedAgt.procedimento || "Não especificado"}</p>
@@ -349,7 +437,6 @@ export default function RecepcaoDashboard() {
                   <p className="text-sm text-[#1C4468] font-semibold mt-1">{fmt(selectedAgt.valorProcedimento)}</p>
                 )}
               </div>
-              {/* Observações */}
               {(selectedAgt.status === "AGENDADO" || selectedAgt.status === "EM_ANDAMENTO") && (
                 <div>
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">Observações</label>
@@ -362,12 +449,11 @@ export default function RecepcaoDashboard() {
                   />
                 </div>
               )}
-              {/* Ações */}
               <div className="flex gap-2 pt-2">
                 {selectedAgt.status === "AGENDADO" && (
                   <>
                     <button
-                      onClick={() => { setShowCancelar(true); }}
+                      onClick={() => setShowCancelar(true)}
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-50 transition"
                     >
                       <XCircle className="w-4 h-4" /> Cancelar
@@ -413,7 +499,7 @@ export default function RecepcaoDashboard() {
               </div>
               <h3 className="text-lg font-bold text-gray-800">Cancelar Agendamento</h3>
             </div>
-            <p className="text-sm text-gray-600 mb-4">Informe o motivo do cancelamento:</p>
+            <p className="text-sm text-gray-600 mb-4">Informe o motivo do cancelamento (opcional):</p>
             <textarea
               value={motivoCancelamento}
               onChange={e => setMotivoCancelamento(e.target.value)}
@@ -441,11 +527,13 @@ export default function RecepcaoDashboard() {
       {/* ─── Modal Novo Agendamento ─── */}
       {showNovo && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+            <div className="border-b px-6 py-4 flex justify-between items-center shrink-0">
               <div>
-                <h2 className="text-lg font-bold text-[#0B1F3A]">Novo Agendamento</h2>
+                <h2 className="text-lg font-bold text-[#0B1F3A]">
+                  {slotHorario ? `Agendar — ${slotHorario.hrAgendamento}` : "Novo Agendamento"}
+                </h2>
                 <div className="flex items-center gap-2 mt-1">
                   {[1, 2, 3].map(s => (
                     <div key={s} className={`flex items-center gap-1 text-xs ${step >= s ? "text-[#0B1F3A] font-semibold" : "text-gray-300"}`}>
@@ -463,7 +551,7 @@ export default function RecepcaoDashboard() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="overflow-y-auto flex-1 p-6">
               {/* Step 1 - Selecionar cliente */}
               {step === 1 && (
                 <div className="space-y-4">
@@ -487,11 +575,11 @@ export default function RecepcaoDashboard() {
                         <div className="w-9 h-9 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
                           {c.nome.charAt(0)}
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-800">{c.nome}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate">{c.nome}</p>
                           <p className="text-xs text-gray-400">{c.cpf} • {c.telefone}</p>
                         </div>
-                        {selCliente?.id === c.id && <CheckCircle className="w-4 h-4 text-[#0B1F3A] ml-auto" />}
+                        {selCliente?.id === c.id && <CheckCircle className="w-4 h-4 text-[#0B1F3A] shrink-0" />}
                       </div>
                     ))}
                   </div>
@@ -502,7 +590,7 @@ export default function RecepcaoDashboard() {
               {step === 2 && (
                 <div className="space-y-3">
                   <h3 className="font-semibold text-gray-700">Selecione o procedimento</h3>
-                  {procedimentos.filter(p => p).map(p => (
+                  {procedimentos.map(p => (
                     <div
                       key={p.id}
                       onClick={() => setSelProcedimento(p)}
@@ -512,9 +600,9 @@ export default function RecepcaoDashboard() {
                         <p className="text-sm font-medium text-gray-800">{p.nome}</p>
                         <p className="text-xs text-gray-400">{p.duracao} min</p>
                       </div>
-                      <div className="text-right">
+                      <div className="flex items-center gap-2 shrink-0">
                         <p className="text-sm font-bold text-[#0B1F3A]">{fmt(p.valor)}</p>
-                        {selProcedimento?.id === p.id && <CheckCircle className="w-4 h-4 text-[#0B1F3A] ml-auto mt-1" />}
+                        {selProcedimento?.id === p.id && <CheckCircle className="w-4 h-4 text-[#0B1F3A]" />}
                       </div>
                     </div>
                   ))}
@@ -534,17 +622,19 @@ export default function RecepcaoDashboard() {
                       <div className="w-10 h-10 bg-gradient-to-br from-[#0B1F3A] to-[#4F7FAE] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
                         {p.nome.charAt(0)}
                       </div>
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-800">{p.nome}</p>
                         <p className="text-xs text-gray-400">{p.especialidade}</p>
                       </div>
-                      {selProfissional?.id === p.id && <CheckCircle className="w-4 h-4 text-[#0B1F3A] ml-auto" />}
+                      {selProfissional?.id === p.id && <CheckCircle className="w-4 h-4 text-[#0B1F3A] shrink-0" />}
                     </div>
                   ))}
-                  {/* Resumo */}
                   {selCliente && selProcedimento && (
                     <div className="mt-4 p-4 bg-[#0B1F3A]/5 rounded-xl border border-[#0B1F3A]/10">
                       <p className="text-xs font-semibold text-[#0B1F3A] mb-2">Resumo do agendamento</p>
+                      {slotHorario && (
+                        <p className="text-sm text-gray-700"><span className="font-medium">Horário:</span> {slotHorario.hrAgendamento}</p>
+                      )}
                       <p className="text-sm text-gray-700"><span className="font-medium">Cliente:</span> {selCliente.nome}</p>
                       <p className="text-sm text-gray-700"><span className="font-medium">Procedimento:</span> {selProcedimento.nome}</p>
                       <p className="text-sm text-gray-700"><span className="font-medium">Valor:</span> {fmt(selProcedimento.valor)}</p>
@@ -555,7 +645,7 @@ export default function RecepcaoDashboard() {
             </div>
 
             {/* Footer */}
-            <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex gap-3">
+            <div className="bg-gray-50 border-t px-6 py-4 flex gap-3 shrink-0">
               {step > 1 && (
                 <button onClick={() => setStep(s => s - 1)} className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-100 transition">
                   <ChevronLeft className="w-4 h-4" /> Voltar
@@ -565,7 +655,7 @@ export default function RecepcaoDashboard() {
               {step < 3 ? (
                 <button
                   onClick={() => setStep(s => s + 1)}
-                  disabled={step === 1 && !selCliente || step === 2 && !selProcedimento}
+                  disabled={(step === 1 && !selCliente) || (step === 2 && !selProcedimento)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white rounded-xl text-sm font-semibold disabled:opacity-50 hover:shadow-md transition"
                 >
                   Próximo <ChevronRight className="w-4 h-4" />
