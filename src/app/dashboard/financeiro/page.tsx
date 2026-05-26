@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  DollarSign, TrendingUp, TrendingDown, Calendar, 
-  Download, Filter, BarChart3, PieChart, 
-  CreditCard, Wallet, Receipt, FileText,
-  ArrowUpCircle, ArrowDownCircle, Eye, ChevronRight,
-  Loader2, AlertCircle, CheckCircle, XCircle
+import {
+  DollarSign, TrendingUp, TrendingDown, Calendar,
+  BarChart3, ArrowUpCircle, ArrowDownCircle, Download,
+  Loader2, CheckCircle, Clock, XCircle
 } from "lucide-react";
-import { api } from "@/services/api";
+import { fetchFinanceiroStats } from "@/services/apiWrapper";
 
 interface FinanceiroStats {
   faturamentoDia: number;
@@ -33,297 +31,185 @@ interface Transacao {
   formaPagamento: string;
 }
 
+const STATUS_CFG = {
+  PAGO: { label: "Pago", color: "bg-green-100 text-green-700", icon: CheckCircle },
+  PENDENTE: { label: "Pendente", color: "bg-yellow-100 text-yellow-700", icon: Clock },
+  CANCELADO: { label: "Cancelado", color: "bg-red-100 text-red-700", icon: XCircle },
+};
+
 export default function FinanceiroDashboard() {
-  const [stats, setStats] = useState<FinanceiroStats>({
-    faturamentoDia: 0,
-    faturamentoMes: 0,
-    faturamentoAno: 0,
-    receitasPrevistas: 0,
-    despesasPrevistas: 0,
-    lucroEstimado: 0,
-    ticketMedio: 0,
-    taxaOcupacao: 0,
-    inadimplencia: 0,
-  });
-  const [transacoesRecentes, setTransacoesRecentes] = useState<Transacao[]>([]);
+  const [stats, setStats] = useState<FinanceiroStats | null>(null);
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [periodo, setPeriodo] = useState<"dia" | "mes" | "ano">("mes");
 
-  useEffect(() => {
-    fetchFinanceiroData();
-  }, [periodo]);
+  useEffect(() => { load(); }, [periodo]);
 
-  async function fetchFinanceiroData() {
+  async function load() {
     setIsLoading(true);
     try {
-      const response = await api.get(`/financeiro/dashboard?periodo=${periodo}`);
-      setStats(response.data.stats);
-      setTransacoesRecentes(response.data.transacoesRecentes);
-    } catch (error) {
-      console.error("Erro ao carregar dados financeiros:", error);
-    } finally {
-      setIsLoading(false);
-    }
+      const data = await fetchFinanceiroStats(periodo);
+      setStats(data.stats as FinanceiroStats);
+      setTransacoes(data.transacoesRecentes as Transacao[]);
+    } catch (e) { console.error(e); }
+    finally { setIsLoading(false); }
   }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
+  const fmt = (v: number) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
+  const fmtDate = (d: string) =>
+    new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'PAGO': return 'bg-green-100 text-green-700';
-      case 'PENDENTE': return 'bg-yellow-100 text-yellow-700';
-      case 'CANCELADO': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
+  const receitaTotal = transacoes.filter(t => t.status === "PAGO").reduce((s, t) => s + t.valor, 0);
+  const pendente = transacoes.filter(t => t.status === "PENDENTE").reduce((s, t) => s + t.valor, 0);
 
-  const faturamentoStats = [
-    { 
-      title: "Faturamento Hoje", 
-      value: formatCurrency(stats.faturamentoDia), 
-      icon: TrendingUp, 
-      color: "from-green-500 to-green-600",
-      period: "dia"
-    },
-    { 
-      title: "Faturamento do Mês", 
-      value: formatCurrency(stats.faturamentoMes), 
-      icon: Calendar, 
-      color: "from-blue-500 to-blue-600",
-      period: "mes"
-    },
-    { 
-      title: "Faturamento do Ano", 
-      value: formatCurrency(stats.faturamentoAno), 
-      icon: BarChart3, 
-      color: "from-purple-500 to-purple-600",
-      period: "ano"
-    },
-  ];
-
-  const indicadoresStats = [
-    { 
-      title: "Ticket Médio", 
-      value: formatCurrency(stats.ticketMedio), 
-      icon: Receipt, 
-      color: "from-indigo-500 to-indigo-600" 
-    },
-    { 
-      title: "Taxa de Ocupação", 
-      value: `${stats.taxaOcupacao}%`, 
-      icon: PieChart, 
-      color: "from-amber-500 to-amber-600" 
-    },
-    { 
-      title: "Inadimplência", 
-      value: `${stats.inadimplencia}%`, 
-      icon: AlertCircle, 
-      color: "from-red-500 to-red-600" 
-    },
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-80">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0B1F3A]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl">
-            <DollarSign className="w-6 h-6 text-white" />
+          <div className="p-2.5 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-xl shadow-md">
+            <DollarSign className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] bg-clip-text text-transparent">
-              Financeiro
-            </h1>
-            <p className="text-gray-500 mt-1">Gestão financeira da clínica</p>
+            <h1 className="text-2xl font-bold text-[#0B1F3A]">Financeiro</h1>
+            <p className="text-sm text-gray-500">Acompanhe as movimentações da clínica</p>
           </div>
         </div>
-        
-        {/* Period Selector */}
-        <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
-          {[
-            { value: "dia", label: "Hoje" },
-            { value: "mes", label: "Este Mês" },
-            { value: "ano", label: "Este Ano" }
-          ].map((p) => (
+        <div className="flex bg-white border border-gray-200 rounded-xl p-1 shadow-sm self-start sm:self-auto">
+          {(["dia", "mes", "ano"] as const).map(p => (
             <button
-              key={p.value}
-              onClick={() => setPeriodo(p.value as any)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                periodo === p.value 
-                  ? "bg-[#0B1F3A] text-white shadow-md" 
-                  : "text-gray-600 hover:bg-gray-200"
-              }`}
+              key={p}
+              onClick={() => setPeriodo(p)}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${periodo === p ? "bg-[#0B1F3A] text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
             >
-              {p.label}
+              {p === "dia" ? "Hoje" : p === "mes" ? "Mês" : "Ano"}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Faturamento Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {faturamentoStats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
-                  <stat.icon className="w-5 h-5 text-white" />
+      {/* Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            { title: "Faturamento Hoje", value: fmt(stats.faturamentoDia), icon: TrendingUp, color: "from-green-500 to-green-600", sub: "Receita do dia" },
+            { title: "Faturamento do Mês", value: fmt(stats.faturamentoMes), icon: Calendar, color: "from-blue-500 to-blue-600", sub: `Previsto: ${fmt(stats.receitasPrevistas)}` },
+            { title: "Ticket Médio", value: fmt(stats.ticketMedio), icon: BarChart3, color: "from-purple-500 to-purple-600", sub: `${stats.taxaOcupacao}% ocupação` },
+            { title: "Lucro Estimado", value: fmt(stats.lucroEstimado), icon: DollarSign, color: "from-amber-500 to-amber-600", sub: `Inadimplência: ${stats.inadimplencia}%` },
+          ].map((c, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden">
+              <div className="p-5">
+                <div className={`w-10 h-10 bg-gradient-to-br ${c.color} rounded-xl flex items-center justify-center shadow-md mb-3`}>
+                  <c.icon className="w-5 h-5 text-white" />
                 </div>
+                <p className="text-gray-500 text-sm">{c.title}</p>
+                <p className="text-xl font-bold text-[#0B1F3A] mt-1">{c.value}</p>
+                <p className="text-xs text-gray-400 mt-1">{c.sub}</p>
               </div>
-              <h3 className="text-gray-500 text-sm font-medium">{stat.title}</h3>
-              <p className="text-2xl font-bold text-[#0B1F3A] mt-1">{stat.value}</p>
+              <div className={`h-1 bg-gradient-to-r ${c.color}`} />
             </div>
-            <div className={`h-1 bg-gradient-to-r ${stat.color}`} />
-          </div>
-        ))}
-      </div>
-
-      {/* Indicadores */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {indicadoresStats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm">{stat.title}</p>
-                <p className="text-2xl font-bold text-[#0B1F3A] mt-1">{stat.value}</p>
-              </div>
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} opacity-75`}>
-                <stat.icon className="w-5 h-5 text-white" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Receitas vs Despesas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ArrowUpCircle className="w-5 h-5 text-green-600" />
-            <h2 className="text-lg font-bold text-gray-800">Receitas Previstas</h2>
-          </div>
-          <p className="text-3xl font-bold text-green-600">{formatCurrency(stats.receitasPrevistas)}</p>
-          <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-green-500 rounded-full" 
-              style={{ width: `${(stats.receitasPrevistas / (stats.receitasPrevistas + stats.despesasPrevistas)) * 100}%` }}
-            />
-          </div>
+          ))}
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ArrowDownCircle className="w-5 h-5 text-red-600" />
-            <h2 className="text-lg font-bold text-gray-800">Despesas Previstas</h2>
-          </div>
-          <p className="text-3xl font-bold text-red-600">{formatCurrency(stats.despesasPrevistas)}</p>
-          <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-red-500 rounded-full" 
-              style={{ width: `${(stats.despesasPrevistas / (stats.receitasPrevistas + stats.despesasPrevistas)) * 100}%` }}
-            />
-          </div>
-        </div>
-      </div>
+      )}
 
-      {/* Lucro Estimado */}
-      <div className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+      {/* Resumo rápido */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3">
+          <ArrowUpCircle className="w-8 h-8 text-green-600 shrink-0" />
           <div>
-            <p className="text-white/70 text-sm">Lucro Estimado do Período</p>
-            <p className="text-3xl font-bold mt-1">{formatCurrency(stats.lucroEstimado)}</p>
-          </div>
-          <div className="bg-white/20 px-4 py-2 rounded-lg">
-            <span className="text-sm">Margem: {((stats.lucroEstimado / stats.receitasPrevistas) * 100).toFixed(1)}%</span>
+            <p className="text-xs text-green-600 font-medium">Receitas recebidas</p>
+            <p className="text-lg font-bold text-green-700">{fmt(receitaTotal)}</p>
           </div>
         </div>
-      </div>
-
-      {/* Transações Recentes */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-6 border-b flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-[#0B1F3A]" />
-            <h2 className="text-xl font-bold text-[#0B1F3A]">Transações Recentes</h2>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 flex items-center gap-3">
+          <Clock className="w-8 h-8 text-yellow-600 shrink-0" />
+          <div>
+            <p className="text-xs text-yellow-600 font-medium">Pendente de recebimento</p>
+            <p className="text-lg font-bold text-yellow-700">{fmt(pendente)}</p>
           </div>
-          <button className="flex items-center gap-1 text-sm text-[#1C4468] hover:text-[#0B1F3A]">
-            Ver todas <ChevronRight className="w-4 h-4" />
-          </button>
         </div>
-        
-        {isLoading ? (
-          <div className="p-12 text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#0B1F3A] mx-auto" />
-          </div>
-        ) : transacoesRecentes.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <Receipt className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Nenhuma transação recente</p>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {transacoesRecentes.map((transacao) => (
-              <div key={transacao.id} className="p-4 hover:bg-gray-50 transition">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${
-                      transacao.tipo === "RECEITA" ? "bg-green-100" : "bg-red-100"
-                    }`}>
-                      {transacao.tipo === "RECEITA" ? (
-                        <ArrowUpCircle className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <ArrowDownCircle className="w-4 h-4 text-red-600" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">{transacao.cliente}</p>
-                      <p className="text-sm text-gray-500">
-                        {transacao.procedimento} • {new Date(transacao.data).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <p className={`font-semibold ${
-                      transacao.tipo === "RECEITA" ? "text-green-600" : "text-red-600"
-                    }`}>
-                      {transacao.tipo === "RECEITA" ? "+" : "-"} {formatCurrency(transacao.valor)}
-                    </p>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transacao.status)}`}>
-                      {transacao.status}
-                    </span>
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <Eye className="w-4 h-4 text-gray-400" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {stats && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+            <ArrowDownCircle className="w-8 h-8 text-red-500 shrink-0" />
+            <div>
+              <p className="text-xs text-red-500 font-medium">Despesas previstas</p>
+              <p className="text-lg font-bold text-red-600">{fmt(stats.despesasPrevistas)}</p>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Ações Rápidas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition text-center">
-          <Download className="w-6 h-6 text-[#0B1F3A] mx-auto mb-2" />
-          <span className="text-sm font-medium">Exportar Relatório</span>
-        </button>
-        <button className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition text-center">
-          <CreditCard className="w-6 h-6 text-[#0B1F3A] mx-auto mb-2" />
-          <span className="text-sm font-medium">Nova Despesa</span>
-        </button>
-        <button className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition text-center">
-          <Wallet className="w-6 h-6 text-[#0B1F3A] mx-auto mb-2" />
-          <span className="text-sm font-medium">Contas a Pagar</span>
-        </button>
-        <button className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition text-center">
-          <FileText className="w-6 h-6 text-[#0B1F3A] mx-auto mb-2" />
-          <span className="text-sm font-medium">Extrato Bancário</span>
-        </button>
+      {/* Tabela */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="font-bold text-[#0B1F3A]">Transações Recentes</h2>
+          <button className="flex items-center gap-2 text-sm text-[#1C4468] hover:text-[#0B1F3A] transition">
+            <Download className="w-4 h-4" /> Exportar
+          </button>
+        </div>
+        {/* Mobile */}
+        <div className="sm:hidden divide-y divide-gray-50">
+          {transacoes.map(t => {
+            const cfg = STATUS_CFG[t.status];
+            const Icon = cfg.icon;
+            return (
+              <div key={t.id} className="p-4">
+                <div className="flex items-start justify-between mb-1">
+                  <p className="text-sm font-semibold text-gray-800">{t.cliente}</p>
+                  <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>
+                    <Icon className="w-3 h-3" />{cfg.label}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400">{t.procedimento} • {t.formaPagamento}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-gray-400">{fmtDate(t.data)}</p>
+                  <p className={`text-sm font-bold ${t.status === "CANCELADO" ? "text-gray-400 line-through" : "text-[#0B1F3A]"}`}>{fmt(t.valor)}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* Desktop */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr>
+                {["Data", "Cliente", "Procedimento", "Forma Pag.", "Valor", "Status"].map(h => (
+                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {transacoes.map(t => {
+                const cfg = STATUS_CFG[t.status];
+                const Icon = cfg.icon;
+                return (
+                  <tr key={t.id} className="hover:bg-gray-50 transition">
+                    <td className="px-5 py-3.5 text-sm text-gray-500">{fmtDate(t.data)}</td>
+                    <td className="px-5 py-3.5 text-sm font-medium text-gray-800">{t.cliente}</td>
+                    <td className="px-5 py-3.5 text-sm text-gray-500">{t.procedimento}</td>
+                    <td className="px-5 py-3.5 text-sm text-gray-500">{t.formaPagamento}</td>
+                    <td className={`px-5 py-3.5 text-sm font-bold ${t.status === "CANCELADO" ? "text-gray-400 line-through" : "text-[#0B1F3A]"}`}>{fmt(t.valor)}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
+                        <Icon className="w-3 h-3" />{cfg.label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
