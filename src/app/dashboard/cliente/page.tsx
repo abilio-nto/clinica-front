@@ -6,7 +6,7 @@ import {
   Loader2, Star, History, Plus, ArrowRight
 } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext.tsx";
+import { useAuth } from "@/context/AuthContext";
 import { mockDelay, MOCK_AGENDAMENTOS_HOJE } from "@/services/mockData";
 
 interface AgendamentoCliente {
