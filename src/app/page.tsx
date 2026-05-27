@@ -108,7 +108,7 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 w-full pt-24 pb-16">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-            {/* Texto */}
+        
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur mb-8">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
