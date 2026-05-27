@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext.tsx";
+import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, Sparkles } from "lucide-react";
 
 type LoginData = {

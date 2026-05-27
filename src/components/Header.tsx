@@ -2,7 +2,7 @@
 
 import { Menu, Bell, Search, X } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext.tsx";
+import { useAuth } from "@/context/AuthContext";
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Administrador",

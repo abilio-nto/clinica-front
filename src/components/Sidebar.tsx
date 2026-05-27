@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/context/AuthContext.tsx";
+import { useAuth } from "@/context/AuthContext";
 import {
   LayoutDashboard, Calendar, Users, UserCog, Syringe,
   DollarSign, LogOut, Sparkles, Clock, History,

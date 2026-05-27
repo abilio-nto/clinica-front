@@ -6,7 +6,7 @@ import {
   CheckCircle, Play, X, AlertCircle,
   Loader2, Activity, Star
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext.tsx";
+import { useAuth } from "@/context/AuthContext";
 import { fetchAgendamentosHoje, iniciarAtendimento, finalizarAtendimento } from "@/services/apiWrapper";
 import { MOCK_AGENDAMENTOS_HOJE } from "@/services/mockData";
 
