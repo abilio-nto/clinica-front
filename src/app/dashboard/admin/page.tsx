@@ -6,7 +6,8 @@ import {
   Calendar, Users, DollarSign, TrendingUp, UserPlus,
   Settings, BarChart3, Shield, Building2, Activity,
   ArrowUpRight, RefreshCw, Clock, CheckCircle, XCircle,
-  AlertCircle, FileText
+  AlertCircle, FileText,
+  X
 } from "lucide-react";
 import { fetchDashboardStats, fetchAgendamentosHoje } from "@/services/apiWrapper";
 
@@ -30,12 +31,27 @@ interface Agendamento {
   valorProcedimento: number;
 }
 
+interface Cliente {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string;
+  cpf: string;
+  dataNascimento: string;
+  endereco: string;
+  totalAtendimentos?: number;
+  ultimaVisita?: string;
+}
+
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   AGENDADO: { label: "Agendado", color: "bg-blue-100 text-blue-700", icon: Clock },
   EM_ANDAMENTO: { label: "Em andamento", color: "bg-amber-100 text-amber-700", icon: Activity },
   FINALIZADO: { label: "Finalizado", color: "bg-green-100 text-green-700", icon: CheckCircle },
   CANCELADO: { label: "Cancelado", color: "bg-red-100 text-red-700", icon: XCircle },
   DISPONIVEL: { label: "Disponível", color: "bg-gray-100 text-gray-500", icon: AlertCircle },
+};
+const EMPTY: Partial<Cliente> = {
+  nome: "", email: "", telefone: "", cpf: "", dataNascimento: "", endereco: ""
 };
 
 export default function AdminDashboard() {
@@ -44,6 +60,11 @@ export default function AdminDashboard() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"criar" | "editar" | "ver">("criar");
+  const [form, setForm] = useState<Partial<Cliente>>(EMPTY);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { load(); }, []);
 
@@ -90,6 +111,30 @@ export default function AdminDashboard() {
         </div>
       </div>
     );
+  }
+
+   const field = (label: string, key: keyof Cliente, type = "text", placeholder = "") => (
+    <div>
+      <label className="block text-xs font-semibold text-gray-600 mb-1.5">{label}</label>
+      {modalMode === "ver" ? (
+        <p className="text-sm text-gray-800 py-2 border-b border-gray-100">{form[key] as string || "—"}</p>
+      ) : (
+        <>
+          <input
+            type={type}
+            value={(form[key] as string) || ""}
+            onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+            placeholder={placeholder}
+            className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 transition ${errors[key] ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-[#0B1F3A]/20 focus:border-[#0B1F3A]"}`}
+          />
+      
+        </>
+      )}
+    </div>
+  );
+
+  const handleDetalhesAgenda = (e: React.MouseEvent<HTMLDivElement>) => {
+      setShowModal(true);
   }
 
   return (
@@ -193,7 +238,7 @@ export default function AdminDashboard() {
                 const cfg = statusConfig[a.status] || statusConfig["DISPONIVEL"];
                 const Icon = cfg.icon;
                 return (
-                  <div key={a.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition group">
+                  <div onClick={handleDetalhesAgenda} key={a.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition group">
                     <span className="text-sm font-semibold text-[#1C4468] w-12 shrink-0">{a.hrAgendamento}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">{a.nomeCliente || "—"}</p>
@@ -210,6 +255,60 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+           {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-[#0B1F3A]">
+               Detalhes do Agendamento
+              </h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {modalMode === "ver" && form.totalAtendimentos !== undefined && (
+                <div className="flex gap-3 mb-2">
+                  <div className="flex-1 bg-[#0B1F3A]/5 rounded-xl p-3 text-center">
+                    <p className="text-2xl font-bold text-[#0B1F3A]">{form.totalAtendimentos}</p>
+                    <p className="text-xs text-gray-500">Atendimentos</p>
+                  </div>
+                  {/* <div className="flex-1 bg-amber-50 rounded-xl p-3 text-center">
+                    <p className="text-sm font-bold text-amber-700">{form.ultimaVisita ? fmt(form.ultimaVisita) : "—"}</p>
+                    <p className="text-xs text-gray-500">Última visita</p>
+                  </div> */}
+                </div>
+              )}
+              {field("Nome completo", "nome", "text", "Ex: Maria Silva")}
+              {field("CPF", "cpf", "text", "000.000.000-00")}
+              {field("Telefone / WhatsApp", "telefone", "text", "(00) 00000-0000")}
+              {field("E-mail", "email", "email", "email@exemplo.com")}
+              {field("Data de nascimento", "dataNascimento", "date")}
+              {field("Endereço", "endereco", "text", "Rua, número, bairro, cidade")}
+            </div>
+
+            {/* {modalMode !== "ver" && (
+              <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex gap-3">
+                <button onClick={() => setShowModal(false)} className="flex-1 border border-gray-200 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-100 transition">
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSalvar}
+                  disabled={saving}
+                  className="flex-1 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white py-2.5 rounded-xl text-sm font-semibold hover:shadow-md transition disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                  {modalMode === "criar" ? "Cadastrar" : "Salvar alterações"}
+                </button>
+              </div>
+            )} */}
+          </div>
+        </div>
+      )}
 
       {/* Ações rápidas */}
       <div>
