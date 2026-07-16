@@ -65,7 +65,7 @@ export default function ProntuarioPaciente() {
     if (!novaEvolucao.trim()) return;
     setIsSalvandoEvolucao(true);
     try {
-      const autor = user?.pessoa?.nome || user?.nome || "Profissional";
+      const autor = user?.pessoa?.nome || "Profissional";
       const evolucao = await adicionarEvolucao(pacienteId, novaEvolucao.trim(), autor);
       setEvolucoes((prev) => [evolucao, ...prev]);
       setNovaEvolucao("");
