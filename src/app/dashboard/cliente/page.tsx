@@ -68,7 +68,7 @@ export default function ClienteDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ export default function ClienteDashboard() {
       </div>
 
       {/* Dados do Cliente */}
-      <div className="bg-white rounded-2xl shadow-sm p-6">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-full flex items-center justify-center text-white text-2xl font-bold">
             {user?.nome?.charAt(0).toUpperCase()}

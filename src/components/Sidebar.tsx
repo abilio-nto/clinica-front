@@ -126,7 +126,7 @@ export default function Sidebar({ open, setOpen }: { open: boolean; setOpen: (v:
       ADMIN: [
         { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
         { label: "Agenda", path: "/dashboard/agenda", icon: Calendar },
-        { label: "Clientes", path: "/dashboard/clientes", icon: Users },
+        { label: "Pacientes", path: "/dashboard/pacientes", icon: Users },
         { label: "Usuários", path: "/dashboard/usuarios", icon: UserCog },
         { label: "Procedimentos", path: "/dashboard/procedimentos", icon: Syringe },
         { label: "Financeiro", path: "/dashboard/financeiro", icon: DollarSign },
@@ -136,7 +136,7 @@ export default function Sidebar({ open, setOpen }: { open: boolean; setOpen: (v:
       RECEPCAO: [
         { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
         { label: "Agenda", path: "/dashboard/agenda", icon: Calendar },
-        { label: "Clientes", path: "/dashboard/clientes", icon: Users },
+        { label: "Pacientes", path: "/dashboard/pacientes", icon: Users },
         { label: "Agendamentos", path: "/dashboard/agendamentos", icon: Clock },
       ],
       FINANCEIRO: [
@@ -148,6 +148,7 @@ export default function Sidebar({ open, setOpen }: { open: boolean; setOpen: (v:
       PROFISSIONAL: [
         { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
         { label: "Minha Agenda", path: "/dashboard/agenda", icon: Calendar },
+        { label: "Pacientes", path: "/dashboard/pacientes", icon: Users },
         { label: "Atendimentos", path: "/dashboard/atendimentos", icon: Clock },
         { label: "Histórico", path: "/dashboard/historico", icon: History },
       ],

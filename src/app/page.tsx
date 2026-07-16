@@ -93,11 +93,13 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center pt-20">
+      <section id="home" className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3A]/5 to-transparent" />
-        <div className="container mx-auto px-6 py-20">
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#1C4468]/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#0B1F3A]/10 rounded-full blur-3xl" />
+        <div className="container mx-auto px-6 py-20 relative">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="animate-in fade-in slide-in-from-left-8 duration-700">
               <div className="inline-flex items-center gap-2 bg-[#0B1F3A]/10 px-4 py-2 rounded-full mb-6">
                 <Sparkles className="w-4 h-4 text-[#0B1F3A]" />
                 <span className="text-sm font-medium text-[#0B1F3A]">Excelência em Estética</span>
@@ -110,10 +112,10 @@ export default function HomePage() {
                 Tratamentos exclusivos com tecnologia de ponta e profissionais especializados para realçar sua beleza natural.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/agendamento" className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition-all flex items-center gap-2">
+                <Link href="/agendamento" className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
                   Agendar Agora <ArrowRight className="w-5 h-5" />
                 </Link>
-                <a href="#servicos" className="border-2 border-[#0B1F3A] text-[#0B1F3A] px-8 py-3 rounded-xl font-semibold hover:bg-[#0B1F3A] hover:text-white transition-all">
+                <a href="#servicos" className="border-2 border-[#0B1F3A] text-[#0B1F3A] px-8 py-3 rounded-xl font-semibold hover:bg-[#0B1F3A] hover:text-white hover:-translate-y-0.5 transition-all">
                   Ver Serviços
                 </a>
               </div>
@@ -132,16 +134,18 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative animate-in fade-in slide-in-from-right-8 duration-700">
               <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] rounded-2xl blur-3xl opacity-20" />
-              <img
-                src="/esteticaSite.png"
-                alt="Estética Avançada"
-                className="relative rounded-2xl shadow-2xl w-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600";
-                }}
-              />
+              <div className="relative rounded-2xl shadow-2xl overflow-hidden aspect-[4/5] md:aspect-square">
+                <img
+                  src="/esteticaSite.png"
+                  alt="Estética Avançada"
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600";
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -162,9 +166,13 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicos.map((servico, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
+              <div
+                key={index}
+                style={{ animationDelay: `${index * 75}ms` }}
+                className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group animate-in fade-in slide-in-from-bottom-4 fill-mode-both"
+              >
                 <div className="p-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-xl flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-[#0B1F3A] mb-2">{servico.nome}</h3>
@@ -190,16 +198,16 @@ export default function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="animate-in fade-in slide-in-from-left-8 duration-700">
               <span className="text-[#1C4468] font-semibold text-sm uppercase tracking-wide">Por que nos escolher</span>
               <h2 className="text-3xl md:text-4xl font-bold text-[#0B1F3A] mt-2 mb-6">
                 Diferenciais que fazem a diferença
               </h2>
               <div className="space-y-6">
                 {diferenciais.map((dif, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="w-12 h-12 bg-[#0B1F3A]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <dif.icone className="w-6 h-6 text-[#0B1F3A]" />
+                  <div key={index} className="flex gap-4 group">
+                    <div className="w-12 h-12 bg-[#0B1F3A]/10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 group-hover:bg-[#0B1F3A]">
+                      <dif.icone className="w-6 h-6 text-[#0B1F3A] transition-colors duration-300 group-hover:text-white" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-800 mb-1">{dif.titulo}</h3>
@@ -209,17 +217,43 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="relative">
+            <div className="relative animate-in fade-in slide-in-from-right-8 duration-700">
+              <div className="rounded-2xl overflow-hidden shadow-xl mb-6 aspect-video">
+                <img
+                  src="/topoSite2.png"
+                  alt="Clínica Nayane Pimentel"
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+              </div>
               <div className="bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] rounded-2xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4">Agende sua avaliação</h3>
                 <p className="mb-6 opacity-90">
                   Primeira consulta gratuita para avaliação e planejamento do seu tratamento personalizado.
                 </p>
-                <Link href="/agendamento" className="inline-flex items-center gap-2 bg-white text-[#0B1F3A] px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition">
+                <Link href="/agendamento" className="inline-flex items-center gap-2 bg-white text-[#0B1F3A] px-6 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all">
                   Agendar Agora <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Banner de encerramento */}
+      <section className="relative h-48 md:h-64 overflow-hidden">
+        <img
+          src="/topoBarraSite.png"
+          alt="Nayane Pimentel Estética Avançada"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B1F3A]/90 via-[#0B1F3A]/60 to-transparent" />
+        <div className="relative h-full container mx-auto px-6 flex items-center">
+          <div className="max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Pronta para se cuidar?</h3>
+            <p className="text-white/80 mb-4">Marque sua avaliação e conheça nossos tratamentos.</p>
+            <Link href="/agendamento" className="inline-flex items-center gap-2 bg-white text-[#0B1F3A] px-6 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              Agendar Agora <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

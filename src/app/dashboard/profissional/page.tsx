@@ -150,7 +150,11 @@ export default function ProfissionalDashboard() {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {quickStats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl shadow-sm p-4">
+          <div
+            key={index}
+            style={{ animationDelay: `${index * 75}ms` }}
+            className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4 animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-xs">{stat.title}</p>

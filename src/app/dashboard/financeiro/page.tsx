@@ -168,7 +168,11 @@ export default function FinanceiroDashboard() {
       {/* Faturamento Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {faturamentoStats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+          <div
+            key={index}
+            style={{ animationDelay: `${index * 75}ms` }}
+            className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
+          >
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>

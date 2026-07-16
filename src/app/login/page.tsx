@@ -35,7 +35,7 @@ export default function Login() {
       {/* ESQUERDA - LOGO COM overlay */}
       <div className="hidden md:flex w-1/2 items-center justify-center relative">
         <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] rounded-r-3xl" />
-        <div className="relative z-10 flex flex-col items-center text-center p-8">
+        <div className="relative z-10 flex flex-col items-center text-center p-8 animate-in fade-in zoom-in-95 duration-700">
           <img
             src="/logo2.png"
             alt="Logo Nayane Pimentel"
@@ -54,10 +54,10 @@ export default function Login() {
 
       {/* DIREITA - LOGIN CARD */}
       <div className="flex w-full md:w-1/2 items-center justify-center px-4">
-        <div className="bg-white/95 backdrop-blur-sm p-8 md:p-10 flex flex-col items-center justify-center rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-          
+        <div className="bg-white/95 backdrop-blur-sm p-8 md:p-10 flex flex-col items-center justify-center rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in fade-in slide-in-from-bottom-6 duration-700">
+
           {/* Ícone decorativo */}
-          <div className="w-16 h-16 bg-gradient-to-tr from-[#0B1F3A] to-[#2C5F8A] rounded-2xl flex items-center justify-center mb-6 shadow-lg rotate-6">
+          <div className="w-16 h-16 bg-gradient-to-tr from-[#0B1F3A] to-[#2C5F8A] rounded-2xl flex items-center justify-center mb-6 shadow-lg rotate-6 transition-transform duration-300 hover:rotate-0 hover:scale-105">
             <span className="text-white text-3xl font-light">✨</span>
           </div>
 

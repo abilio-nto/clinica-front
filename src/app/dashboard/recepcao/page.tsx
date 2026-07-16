@@ -78,7 +78,7 @@ export default function RecepcaoDashboard() {
 
       {/* Stats Card */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 animate-in fade-in slide-in-from-bottom-2 fill-mode-both">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Hoje</p>
@@ -87,7 +87,7 @@ export default function RecepcaoDashboard() {
             <Calendar className="w-8 h-8 text-[#0B1F3A] opacity-50" />
           </div>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 animate-in fade-in slide-in-from-bottom-2 fill-mode-both [animation-delay:75ms]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Em Andamento</p>
@@ -98,7 +98,7 @@ export default function RecepcaoDashboard() {
             <Clock className="w-8 h-8 text-yellow-500 opacity-50" />
           </div>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 animate-in fade-in slide-in-from-bottom-2 fill-mode-both [animation-delay:150ms]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Finalizados</p>
