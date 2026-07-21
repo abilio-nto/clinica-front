@@ -77,7 +77,7 @@ export default function ClienteDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Saudação */}
       <div className="bg-gradient-to-br from-[#0B1F3A] to-[#1C4468] rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold">

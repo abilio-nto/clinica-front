@@ -7,6 +7,7 @@ import {
   ArrowRight, CheckCircle, Phone, MapPin,
   ChevronDown, Menu, X
 } from "lucide-react";
+import { Reveal } from "@/components/Reveal";
 
 const SERVICOS = [
   { nome: "Limpeza de Pele", desc: "Remoção de impurezas e renovação celular profunda com produtos premium", dur: "60 min", preco: "R$ 150", cat: "Facial", emoji: "✨" },
@@ -108,8 +109,8 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 w-full pt-24 pb-16">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-        
-            <div>
+
+            <div className="animate-in fade-in slide-in-from-left-8 duration-700">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur mb-8">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                 <span className="text-white/70 text-xs font-medium tracking-wider uppercase">Clínica de Estética Avançada · Recife</span>
@@ -146,7 +147,7 @@ export default function HomePage() {
             </div>
 
             {/* Imagem + cards flutuantes */}
-            <div className="relative hidden lg:block">
+            <div className="relative hidden lg:block animate-in fade-in slide-in-from-right-8 duration-700 [animation-delay:150ms] fill-mode-both">
               <div className="relative">
                 {/* Glow */}
                 <div className="absolute -inset-6 bg-gradient-to-r from-[#1C4468] to-[#4F7FAE] rounded-3xl blur-3xl opacity-30" />
@@ -161,7 +162,7 @@ export default function HomePage() {
               </div>
 
               {/* Card flutuante — avaliação */}
-              <div className="absolute -left-10 top-1/3 bg-white rounded-2xl shadow-2xl px-5 py-4 w-48">
+              <div className="absolute -left-10 top-1/3 bg-white rounded-2xl shadow-2xl px-5 py-4 w-48 animate-in fade-in zoom-in-95 duration-500 [animation-delay:500ms] fill-mode-both">
                 <div className="flex gap-0.5 mb-2">
                   {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />)}
                 </div>
@@ -170,7 +171,7 @@ export default function HomePage() {
               </div>
 
               {/* Card flutuante — próxima vaga */}
-              <div className="absolute -right-8 bottom-24 bg-[#0B1F3A] rounded-2xl shadow-2xl px-5 py-4 text-white w-44">
+              <div className="absolute -right-8 bottom-24 bg-[#0B1F3A] rounded-2xl shadow-2xl px-5 py-4 text-white w-44 animate-in fade-in zoom-in-95 duration-500 [animation-delay:700ms] fill-mode-both">
                 <p className="text-xs text-white/60 mb-1">Próxima vaga</p>
                 <p className="text-lg font-bold">Hoje, 15h</p>
                 <Link href="/agendamento" className="mt-2 flex items-center gap-1 text-xs text-[#4F7FAE] font-medium hover:underline">
@@ -192,7 +193,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="grid lg:grid-cols-[1fr_2fr] gap-16 items-start">
             {/* Sidebar esquerda */}
-            <div className="lg:sticky lg:top-28">
+            <Reveal from="left" className="lg:sticky lg:top-28">
               <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#4F7FAE] mb-3">Tratamentos</span>
               <h2 className="text-4xl font-bold text-[#0B1F3A] leading-tight mb-4">
                 O que podemos<br />fazer por você
@@ -203,34 +204,35 @@ export default function HomePage() {
               <Link href="/agendamento" className="inline-flex items-center gap-2 px-6 py-3 bg-[#0B1F3A] text-white rounded-full text-sm font-semibold hover:bg-[#1C4468] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#0B1F3A]/20">
                 Agendar agora <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
+            </Reveal>
 
             {/* Grid de cards */}
             <div className="grid sm:grid-cols-2 gap-4">
               {SERVICOS.map((s, i) => (
-                <div
-                  key={i}
-                  onMouseEnter={() => setActiveService(i)}
-                  className={`group relative bg-white rounded-2xl p-6 border-2 transition-all duration-300 cursor-default overflow-hidden ${activeService === i ? "border-[#0B1F3A] shadow-xl shadow-[#0B1F3A]/10 -translate-y-1" : "border-transparent shadow-sm hover:-translate-y-1"}`}
-                >
-                  {/* Fundo decorativo */}
-                  <div className={`absolute top-0 right-0 w-20 h-20 rounded-bl-3xl transition-all duration-300 ${activeService === i ? "bg-[#0B1F3A]/5" : "bg-gray-50"}`} />
+                <Reveal key={i} delay={i * 75}>
+                  <div
+                    onMouseEnter={() => setActiveService(i)}
+                    className={`group relative bg-white rounded-2xl p-6 border-2 transition-all duration-300 cursor-default overflow-hidden ${activeService === i ? "border-[#0B1F3A] shadow-xl shadow-[#0B1F3A]/10 -translate-y-1" : "border-transparent shadow-sm hover:-translate-y-1"}`}
+                  >
+                    {/* Fundo decorativo */}
+                    <div className={`absolute top-0 right-0 w-20 h-20 rounded-bl-3xl transition-all duration-300 ${activeService === i ? "bg-[#0B1F3A]/5" : "bg-gray-50"}`} />
 
-                  <div className="relative">
-                    <span className="text-2xl mb-3 block">{s.emoji}</span>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-[#0B1F3A] text-base">{s.nome}</h3>
-                      <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${activeService === i ? "bg-[#0B1F3A] text-white" : "bg-gray-100 text-gray-500"}`}>{s.cat}</span>
-                    </div>
-                    <p className="text-gray-500 text-xs leading-relaxed mb-4">{s.desc}</p>
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-1 text-gray-400 text-xs">
-                        <Clock className="w-3.5 h-3.5" /> {s.dur}
+                    <div className="relative">
+                      <span className="text-2xl mb-3 block">{s.emoji}</span>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-bold text-[#0B1F3A] text-base">{s.nome}</h3>
+                        <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${activeService === i ? "bg-[#0B1F3A] text-white" : "bg-gray-100 text-gray-500"}`}>{s.cat}</span>
                       </div>
-                      <p className="text-[#0B1F3A] font-bold text-base">{s.preco}</p>
+                      <p className="text-gray-500 text-xs leading-relaxed mb-4">{s.desc}</p>
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-1 text-gray-400 text-xs">
+                          <Clock className="w-3.5 h-3.5" /> {s.dur}
+                        </div>
+                        <p className="text-[#0B1F3A] font-bold text-base">{s.preco}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -241,24 +243,26 @@ export default function HomePage() {
       <section id="diferenciais" className="py-24 bg-[#0B1F3A] relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.04]" style={{backgroundImage:"radial-gradient(circle,rgba(255,255,255,1) 1px,transparent 1px)",backgroundSize:"32px 32px"}} />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center mb-16">
+          <Reveal className="text-center mb-16">
             <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#4F7FAE] mb-3">Nossos diferenciais</span>
             <h2 className="text-4xl font-bold text-white">Por que escolher a Nayane Pimentel?</h2>
-          </div>
+          </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {DIFERENCIAIS.map((d, i) => (
-              <div key={i} className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 bg-[#4F7FAE]/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#4F7FAE]/30 transition-colors">
-                  <d.icon className="w-5 h-5 text-[#4F7FAE]" />
+              <Reveal key={i} delay={i * 75}>
+                <div className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1">
+                  <div className="w-12 h-12 bg-[#4F7FAE]/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#4F7FAE]/30 transition-colors">
+                    <d.icon className="w-5 h-5 text-[#4F7FAE]" />
+                  </div>
+                  <h3 className="font-bold text-white mb-2">{d.titulo}</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">{d.desc}</p>
                 </div>
-                <h3 className="font-bold text-white mb-2">{d.titulo}</h3>
-                <p className="text-white/50 text-sm leading-relaxed">{d.desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
 
           {/* Banner CTA */}
-          <div className="mt-16 bg-gradient-to-r from-[#1C4468] to-[#4F7FAE]/40 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <Reveal className="mt-16 bg-gradient-to-r from-[#1C4468] to-[#4F7FAE]/40 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <p className="text-white font-bold text-2xl">Primeira avaliação gratuita</p>
               <p className="text-white/60 mt-1 text-sm">Agende agora e descubra o tratamento ideal para você</p>
@@ -266,33 +270,35 @@ export default function HomePage() {
             <Link href="/agendamento" className="shrink-0 flex items-center gap-2 px-8 py-3.5 bg-white text-[#0B1F3A] rounded-full font-semibold text-sm hover:bg-gray-50 transition-all hover:-translate-y-0.5 shadow-xl">
               Garantir vaga <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ── DEPOIMENTOS ──────────────────────────────── */}
       <section id="depoimentos" className="py-24 bg-[#fafaf8]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center mb-14">
+          <Reveal className="text-center mb-14">
             <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#4F7FAE] mb-3">Depoimentos</span>
             <h2 className="text-4xl font-bold text-[#0B1F3A]">O que dizem nossas clientes</h2>
-          </div>
+          </Reveal>
           <div className="grid md:grid-cols-3 gap-6">
             {DEPOIMENTOS.map((d, i) => (
-              <div key={i} className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1 duration-300">
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({length: d.nota}).map((_, s) => (
-                    <Star key={s} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 italic">"{d.texto}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-gradient-to-br from-[#0B1F3A] to-[#4F7FAE] rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {d.nome.charAt(0)}
+              <Reveal key={i} delay={i * 100}>
+                <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1 duration-300">
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({length: d.nota}).map((_, s) => (
+                      <Star key={s} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    ))}
                   </div>
-                  <span className="font-semibold text-gray-800 text-sm">{d.nome}</span>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6 italic">"{d.texto}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-[#0B1F3A] to-[#4F7FAE] rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      {d.nome.charAt(0)}
+                    </div>
+                    <span className="font-semibold text-gray-800 text-sm">{d.nome}</span>
+                  </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -302,15 +308,15 @@ export default function HomePage() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="relative">
+            <Reveal from="left" className="relative">
               <div className="absolute -inset-4 bg-gradient-to-br from-[#0B1F3A]/10 to-[#4F7FAE]/10 rounded-3xl blur-2xl" />
               <img
                 src="/logo2.png"
                 alt="Nayane Pimentel"
                 className="relative w-full max-w-sm mx-auto object-contain drop-shadow-2xl"
               />
-            </div>
-            <div>
+            </Reveal>
+            <Reveal from="right" delay={100}>
               <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#4F7FAE] mb-4">Sobre a clínica</span>
               <h2 className="text-4xl font-bold text-[#0B1F3A] mb-6 leading-tight">
                 Excelência e cuidado<br />em cada detalhe
@@ -329,7 +335,7 @@ export default function HomePage() {
                   <Phone className="w-4 h-4" /> Ligar agora
                 </a>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>

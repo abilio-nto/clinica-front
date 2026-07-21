@@ -220,20 +220,23 @@ function formatarData(data: string) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#0B1F3A]/[0.03] relative overflow-hidden">
+      <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#1C4468]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 -left-32 w-80 h-80 bg-[#4F7FAE]/5 rounded-full blur-3xl pointer-events-none" />
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="relative bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div className="container mx-auto px-6 py-4">
-          <Link href="/" className="flex items-center gap-2 w-fit">
-            <ArrowLeft className="w-5 h-5 text-[#0B1F3A]" />
-            <span className="text-gray-600">Voltar para o site</span>
+          <Link href="/" className="flex items-center gap-2 w-fit text-gray-600 hover:text-[#0B1F3A] transition-colors group">
+            <ArrowLeft className="w-5 h-5 text-[#0B1F3A] transition-transform group-hover:-translate-x-0.5" />
+            <span>Voltar para o site</span>
           </Link>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-12 max-w-4xl">
+      <div className="relative container mx-auto px-6 py-12 max-w-4xl">
         {/* Progress Steps */}
-        <div className="mb-12">
+        <div className="mb-12 animate-in fade-in slide-in-from-top-2 duration-500">
           <div className="flex justify-between items-center">
             {[
               "Escolher Data",
@@ -242,16 +245,16 @@ function formatarData(data: string) {
               "Confirmar"
             ].map((label, index) => (
               <div key={index} className="flex-1 relative">
-                <div className={`text-center ${index + 1 === step ? "text-[#0B1F3A]" : index + 1 < step ? "text-green-600" : "text-gray-400"}`}>
-                  <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center border-2 
-                    ${index + 1 === step ? "border-[#0B1F3A] bg-[#0B1F3A] text-white" :
+                <div className={`text-center transition-colors duration-300 ${index + 1 === step ? "text-[#0B1F3A]" : index + 1 < step ? "text-green-600" : "text-gray-400"}`}>
+                  <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center border-2 transition-all duration-300
+                    ${index + 1 === step ? "border-[#0B1F3A] bg-[#0B1F3A] text-white shadow-lg shadow-[#0B1F3A]/20 scale-110" :
                       index + 1 < step ? "border-green-600 bg-green-600 text-white" : "border-gray-300 bg-white"}`}>
-                    {index + 1 < step ? <CheckCircle className="w-5 h-5" /> : index + 1}
+                    {index + 1 < step ? <CheckCircle className="w-5 h-5 animate-in zoom-in duration-300" /> : index + 1}
                   </div>
                   <p className="text-sm mt-2 hidden md:block">{label}</p>
                 </div>
                 {index < 3 && (
-                  <div className={`absolute top-5 left-1/2 w-full h-0.5 
+                  <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-colors duration-500
                     ${index + 1 < step ? "bg-green-600" : "bg-gray-300"}`} />
                 )}
               </div>
@@ -261,7 +264,7 @@ function formatarData(data: string) {
 
         {/* Step 1: Selecionar Data */}
         {step === 1 && (
-          <div className="bg-white rounded-2xl shadow-sm p-8">
+          <div key="step-1" className="bg-white rounded-2xl shadow-sm p-8 animate-in fade-in slide-in-from-bottom-3 duration-500">
             <h2 className="text-2xl font-bold text-[#0B1F3A] mb-6">Escolha uma data</h2>
             {isLoading ? (
               <div className="flex justify-center py-12">
@@ -269,11 +272,12 @@ function formatarData(data: string) {
               </div>
             ) : (
               <div className="grid gap-4">
-                {agendas.map((agenda) => (
+                {agendas.map((agenda, i) => (
                   <button
                     key={`agenda-${agenda.id}-${agenda.dtAgenda}`} // Key única combinando ID e data
                     onClick={() => handleSelectAgenda(agenda)}
-                    className="text-left p-4 border rounded-xl hover:border-[#0B1F3A] hover:shadow-md transition-all"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                    className="group text-left p-4 border rounded-xl hover:border-[#0B1F3A] hover:shadow-md hover:-translate-y-0.5 transition-all animate-in fade-in slide-in-from-bottom-2 fill-mode-both"
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -293,7 +297,7 @@ function formatarData(data: string) {
                           </p>
                         </div>
                       </div>
-                      <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
+                      <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180 transition-transform group-hover:translate-x-1" />
                     </div>
                   </button>
                 ))}
@@ -311,7 +315,7 @@ function formatarData(data: string) {
 
         {/* Step 2: Selecionar Horário */}
         {step === 2 && selectedAgenda && (
-          <div className="bg-white rounded-2xl shadow-sm p-8">
+          <div key="step-2" className="bg-white rounded-2xl shadow-sm p-8 animate-in fade-in slide-in-from-right-3 duration-500">
             <button
               onClick={() => setStep(1)}
               className="text-gray-500 hover:text-[#0B1F3A] mb-4 flex items-center gap-1"
@@ -343,7 +347,7 @@ function formatarData(data: string) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {selectedAgenda.itensAgenda
                 .filter(item => item.status === "DISPONIVEL")
-                .map((item) => (
+                .map((item, i) => (
                   <button
                     key={item.id}
                     onClick={() => {
@@ -351,7 +355,8 @@ function formatarData(data: string) {
                       setSelectedHorario(item);
                       setStep(3);
                     }}
-                    className="p-3 border rounded-lg hover:border-[#0B1F3A] hover:bg-[#0B1F3A]/5 transition-all text-center"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                    className="p-3 border rounded-lg hover:border-[#0B1F3A] hover:bg-[#0B1F3A]/5 hover:-translate-y-0.5 hover:shadow-md transition-all text-center animate-in fade-in zoom-in-95 fill-mode-both"
                   >
                     <Clock className="w-4 h-4 text-[#0B1F3A] mx-auto mb-1" />
                     <span className="font-semibold text-[#0B1F3A]">
@@ -377,7 +382,7 @@ function formatarData(data: string) {
 
         {/* Step 3: Identificação */}
         {step === 3 && (
-          <div className="bg-white rounded-2xl shadow-sm p-8">
+          <div key="step-3" className="bg-white rounded-2xl shadow-sm p-8 animate-in fade-in slide-in-from-right-3 duration-500">
             <button
               onClick={() => setStep(2)}
               className="text-gray-500 hover:text-[#0B1F3A] mb-4 flex items-center gap-1"
@@ -397,12 +402,12 @@ function formatarData(data: string) {
                     value={cpf}
                     onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))}
                     maxLength={11}
-                    className="flex-1 border text-[#0B1F3A] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B1F3A]"
+                    className="flex-1 border text-[#0B1F3A] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B1F3A] transition-shadow"
                   />
                   <button
                     onClick={buscarClientePorCpf}
                     disabled={isLoading}
-                    className="bg-[#0B1F3A] text-white px-6 py-2 rounded-lg hover:bg-[#1C4468] transition disabled:opacity-50"
+                    className="bg-[#0B1F3A] text-white px-6 py-2 rounded-lg hover:bg-[#1C4468] hover:shadow-md transition disabled:opacity-50"
                   >
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Buscar"}
                   </button>
@@ -429,7 +434,7 @@ function formatarData(data: string) {
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <h3 className="font-semibold text-gray-800 mb-4">Complete seu cadastro</h3>
                 <div className="space-y-4">
                   <input
@@ -490,11 +495,11 @@ function formatarData(data: string) {
 
         {/* Step 4: Confirmação */}
         {step === 4 && selectedHorario && cliente && selectedAgenda && (
-          <div className="bg-white rounded-2xl shadow-sm p-8">
+          <div key="step-4" className="bg-white rounded-2xl shadow-sm p-8 animate-in fade-in slide-in-from-right-3 duration-500">
             <h2 className="text-2xl font-bold text-[#0B1F3A] mb-6">Confirmar Agendamento</h2>
 
             <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl animate-in fade-in slide-in-from-bottom-2 fill-mode-both">
                 <CalendarIcon className="w-5 h-5 text-[#0B1F3A] mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Data</p>
@@ -503,7 +508,7 @@ function formatarData(data: string) {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl animate-in fade-in slide-in-from-bottom-2 fill-mode-both [animation-delay:75ms]">
                 <Clock className="w-5 h-5 text-[#0B1F3A] mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Horário</p>
@@ -511,7 +516,7 @@ function formatarData(data: string) {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl animate-in fade-in slide-in-from-bottom-2 fill-mode-both [animation-delay:150ms]">
                 <User className="w-5 h-5 text-[#0B1F3A] mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Cliente</p>
@@ -531,7 +536,7 @@ function formatarData(data: string) {
               <button
                 onClick={confirmarAgendamento}
                 disabled={isLoading}
-                className="flex-1 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50"
+                className="flex-1 bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Confirmar Agendamento"}
               </button>

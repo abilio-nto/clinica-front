@@ -35,7 +35,7 @@ export default function Login() {
       {/* Lado esquerdo — logo */}
       <div className="hidden lg:flex w-1/2 items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#1C4468_0%,_transparent_70%)] opacity-40" />
-        <div className="relative z-10 flex flex-col items-center text-center p-12">
+        <div className="relative z-10 flex flex-col items-center text-center p-12 animate-in fade-in zoom-in-95 duration-700">
           <img
             src="/logo2.png"
             alt="Nayane Pimentel Estética"
@@ -46,10 +46,14 @@ export default function Login() {
             <div className="w-16 h-px bg-white/30 mx-auto" />
             <p className="text-white/50 text-sm">Cuidado com excelência e sofisticação</p>
           </div>
+          <div className="mt-8 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur">
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+            <span className="text-white/50 text-xs font-medium tracking-wide uppercase">Sistema online</span>
+          </div>
         </div>
         {/* Círculos decorativos */}
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#1C4468]/20 rounded-full blur-3xl" />
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#4F7FAE]/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#1C4468]/20 rounded-full blur-3xl animate-pulse [animation-duration:6s]" />
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#4F7FAE]/10 rounded-full blur-3xl animate-pulse [animation-duration:8s]" />
       </div>
 
       {/* Lado direito — form */}
@@ -60,10 +64,10 @@ export default function Login() {
             <img src="/logo2.png" alt="Logo" className="h-20 object-contain" />
           </div>
 
-          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
             {/* Header do card */}
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#0B1F3A] to-[#2C5F8A] rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#0B1F3A] to-[#2C5F8A] rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 hover:rotate-6 hover:scale-105">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -74,13 +78,13 @@ export default function Login() {
 
             {/* Erro */}
             {error && (
-              <div className="mb-5 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+              <div className="mb-5 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl animate-in fade-in slide-in-from-top-1 duration-300">
                 {error}
               </div>
             )}
 
             {/* Dica de acesso (apenas mock) */}
-            <div className="mb-5 p-3 bg-blue-50 border border-blue-200 text-blue-700 text-xs rounded-xl">
+            <div className="mb-5 p-3 bg-blue-50 border border-blue-200 text-blue-700 text-xs rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500 [animation-delay:200ms] fill-mode-both">
               <p className="font-semibold mb-1">Contas de teste disponíveis:</p>
               <p>Admin: <strong>admin</strong> / <strong>admin123</strong></p>
               <p>Recepção: <strong>recepcao</strong> / <strong>123456</strong></p>
@@ -127,7 +131,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] hover:from-[#1C4468] hover:to-[#0B1F3A] text-white p-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[#0B1F3A] to-[#1C4468] hover:from-[#1C4468] hover:to-[#0B1F3A] text-white p-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>

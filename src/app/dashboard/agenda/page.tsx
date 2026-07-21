@@ -243,7 +243,7 @@ export default function AgendaPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Toast */}
       {toast && (
         <div className={`fixed top-5 right-5 z-[100] px-5 py-3 rounded-xl shadow-xl text-white text-sm font-medium flex items-center gap-2 transition-all ${toast.type === "ok" ? "bg-green-500" : "bg-red-500"}`}>

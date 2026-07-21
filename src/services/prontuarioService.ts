@@ -34,9 +34,40 @@ export async function buscarPaciente(pacienteId: number): Promise<Paciente | und
   return delay(mockPacientes.find((p) => p.id === pacienteId));
 }
 
+export async function criarPaciente(dados: Omit<Paciente, "id" | "criadoEm" | "alergias" | "contraindicacoes">): Promise<Paciente> {
+  // API real: return (await api.post("/pacientes", dados)).data;
+  const novo: Paciente = {
+    ...dados,
+    id: Date.now(),
+    alergias: [],
+    contraindicacoes: [],
+    criadoEm: new Date().toISOString(),
+  };
+  mockPacientes.push(novo);
+  return delay(novo);
+}
+
+export async function atualizarPaciente(pacienteId: number, dados: Partial<Paciente>): Promise<Paciente | undefined> {
+  // API real: return (await api.put(`/pacientes/${pacienteId}`, dados)).data;
+  const idx = mockPacientes.findIndex((p) => p.id === pacienteId);
+  if (idx === -1) return delay(undefined);
+  mockPacientes[idx] = { ...mockPacientes[idx], ...dados };
+  return delay(mockPacientes[idx]);
+}
+
 export async function listarHistorico(pacienteId: number): Promise<HistoricoProcedimento[]> {
   // API real: return (await api.get(`/pacientes/${pacienteId}/historico`)).data;
   return delay(mockHistorico.filter((h) => h.pacienteId === pacienteId));
+}
+
+export async function adicionarHistorico(
+  pacienteId: number,
+  dados: Omit<HistoricoProcedimento, "id" | "pacienteId">
+): Promise<HistoricoProcedimento> {
+  // API real: return (await api.post(`/pacientes/${pacienteId}/historico`, dados)).data;
+  const novo: HistoricoProcedimento = { ...dados, id: Date.now(), pacienteId };
+  mockHistorico.unshift(novo);
+  return delay(novo);
 }
 
 export async function listarEvolucoes(pacienteId: number): Promise<Evolucao[]> {
@@ -60,6 +91,20 @@ export async function adicionarEvolucao(pacienteId: number, texto: string, autor
 export async function listarAnexos(pacienteId: number): Promise<Anexo[]> {
   // API real: return (await api.get(`/pacientes/${pacienteId}/anexos`)).data;
   return delay(mockAnexos.filter((a) => a.pacienteId === pacienteId));
+}
+
+export async function adicionarAnexo(pacienteId: number, nome: string, tipo: Anexo["tipo"]): Promise<Anexo> {
+  // API real (multipart/form-data com o arquivo): return (await api.post(`/pacientes/${pacienteId}/anexos`, formData)).data;
+  const novo: Anexo = {
+    id: Date.now(),
+    pacienteId,
+    nome,
+    tipo,
+    url: "#",
+    criadoEm: new Date().toISOString(),
+  };
+  mockAnexos.unshift(novo);
+  return delay(novo);
 }
 
 export type { Paciente, HistoricoProcedimento, Evolucao, Anexo };
